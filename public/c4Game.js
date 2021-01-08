@@ -17,15 +17,16 @@ const config = {
 const connectFour = (arg) => {
     const board = document.createElement('div');
     board.style.width = config.boardWidth + 'px';
-    board.style.width = config.boardHeight + 'px';
-    board.style.position = 'relative';
+    board.style.height = config.boardHeight + 'px';
+    board.className = 'board'
     document.body.appendChild(board)
 
     arg.forEach(rowArray => {
 
         const row = document.createElement('div');
         row.style.width = '100%'
-        row.style.position = 'relative';
+        row.style.display = 'align-items'
+        row.className = 'row'
         board.appendChild(row)
         const gamePieceDiameter = 100 / rowArray.length
         rowArray.forEach(color => {
@@ -33,8 +34,9 @@ const connectFour = (arg) => {
             gamePiece.style.width = gamePieceDiameter + 'px';
             gamePiece.style.height = gamePieceDiameter + 'px';
             gamePiece.style.background = color
-            gamePiece.style.position = 'relative';
-            board.appendChild(gamePiece)
+            gamePiece.style.flexDirection = 'center'
+            gamePiece.className = 'gamePiece'
+            row.appendChild(gamePiece)
         })
     });
 }

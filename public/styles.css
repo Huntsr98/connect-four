@@ -1,0 +1,12 @@
+.board {
+    display: relative
+}
+
+.row {
+    display: flex
+}
+
+.gamePiece {
+    margin: 5px;
+    border-radius: 25px;
+}
