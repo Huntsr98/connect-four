@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const port = 3000
 let cache = ['hello']
+const myDB = {}
+
 
 app.use(express.static('public'))
 const bodyParser = require('body-parser');
