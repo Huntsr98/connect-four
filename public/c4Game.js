@@ -41,12 +41,12 @@ const connectFour = (arg) => {
     });
 }
 const arg = [
-    ['red', 'black', null, 'red'],
-    ['black', 'black', 'red', 'black'],
-    ['black', null, 'black', 'black'],
-    ['black', 'red', 'red', 'red'],
-    ['red', 'red', 'red', 'black'],
-    [null, 'red', 'red', 'black'],
+    ['red', 'black', null, 'red', null, null, null],
+    ['black', 'black', 'red', 'black', 'red', null, 'black'],
+    ['black', 'red', 'black', 'black', 'black', null, 'black'],
+    ['black', 'red', 'red', 'red', 'black', 'red', 'red'],
+    ['red', 'black', 'red', 'black', 'black', 'red', 'black'],
+    ['black', 'red', 'black', 'red', 'red', 'black', 'black'],
 ]
 
 connectFour(arg)
