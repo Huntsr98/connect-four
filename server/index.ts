@@ -1,6 +1,5 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import * as config from './config'
 import { MakeAMoveRequest, State } from '../types'
 
 const express = require('express')
