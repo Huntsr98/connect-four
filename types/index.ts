@@ -1,7 +1,7 @@
 
 export type PieceColor = 'red' | 'black'
 
-export type State = {
+export type ServerState = {
     moves: MakeAMoveRequest[], 
     scores: {
         client1: number,

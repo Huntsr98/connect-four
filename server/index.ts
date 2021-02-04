@@ -1,6 +1,6 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import { MakeAMoveRequest, State } from '../types'
+import { MakeAMoveRequest, ServerState } from '../types'
 
 
 const app = express()
@@ -10,7 +10,7 @@ const myDB = {}
 
 const stateFactory = () => {
 
-    const initialState: State = {
+    const initialState: ServerState = {
         moves: [],
         scores: {
             client1: 0,
