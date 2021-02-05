@@ -2,7 +2,7 @@
 export type PieceColor = 'red' | 'black'
 
 export type ServerState = {
-    moves: MakeAMoveRequest[], 
+    moves: Move[], 
     scores: {
         client1: number,
         client2: number
@@ -15,7 +15,7 @@ export type ServerState = {
     gameId: number
 }
 
-export interface MakeAMoveRequest {
+export interface Move {
     color: PieceColor,
     x: number,
     y: number

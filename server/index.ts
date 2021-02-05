@@ -1,12 +1,22 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
-import { MakeAMoveRequest, ServerState } from '../types'
+import { Move, ServerState } from '../types'
+import * as cors from 'cors'
 
 
 const app = express()
 const port = 3000
 let cache = ['hello']
 const myDB = {}
+
+const origin = `http://localhost:1234`
+const corsOptions = {
+    origin,
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+app.use(cors(corsOptions))
+
+
 
 const stateFactory = () => {
 
@@ -33,7 +43,8 @@ app.use(bodyParser.json())
 
 
 app.post('/make-a-move', (req, res) => {
-    const move: MakeAMoveRequest = req.body
+    const move: Move = req.body
+    console.log('made it')
     if (move.color === state.whoseTurn) {
         state.moves.push(move)
         console.log(state)
