@@ -6,6 +6,12 @@
 //  each subarray will be a row, a row of divs in the dom
 // each div will have the background color of red or black or none (in the case of a null)
 
+import * as stateFunctions from '../src/state'
+
+
+//this is temporary stub
+stateFunctions.makeAMove(stateFunctions.state.gameId, stateFunctions.state.moves[0].x, stateFunctions.state.moves[0].y, stateFunctions.state.myColor)
+
 const config = {
     rowHeight: 300,
     rowWidth: 300,
