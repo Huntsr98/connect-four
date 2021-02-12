@@ -1,0 +1,18 @@
+POST http://localhost:3000/reset HTTP/1.1
+content-type: application/json
+
+{
+    "state": {
+        "moves": [],
+        "scores": {
+            "client1": 2,
+            "client2": 5
+        },
+        "boardDimension": {
+            "x": 7,
+            "y": 6
+        },
+        "whoseTurn": "red"
+    },
+    "gameId": 123456789012
+}
