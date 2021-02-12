@@ -2,7 +2,6 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import { Move, ServerState } from '../types'
 import * as cors from 'cors'
-
 const app = express()
 const port = 3000
 let cache = ['hello']
@@ -12,10 +11,9 @@ const origin = `http://localhost:1234`
 const corsOptions = {
     origin,
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+
 }
 app.use(cors(corsOptions))
-
-
 
 const stateFactory = () => {
 
@@ -34,6 +32,7 @@ const stateFactory = () => {
     }
     return initialState
 }
+
 let state = stateFactory()
 
 
