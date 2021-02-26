@@ -6,9 +6,11 @@
 //  each subarray will be a row, a row of divs in the dom
 // each div will have the background color of red or black or none (in the case of a null)
 
-import * as stateFunctions from '../src/state'
-import React, { useState } from 'react'
-import ReactDOM from 'react-dom' 
+import * as stateFunctions from '../src/state';
+import * as React from 'react'
+import ReactDOM from 'react-dom';
+import { ServerState } from '../types';
+import axios from 'axios'
 
 
 //this is temporary stub
@@ -54,9 +56,9 @@ const GamePiece = ({color}) => {
         width: config.gamePieceDiameter + 'px',
         height: config.gamePieceDiameter + 'px',
         background: color,
-        flexDirection: 'center',
+        //flexDirection: 'center',
     }
-    return <div style={style} classname="gamePiece">
+    return <div style={style} className="gamePiece">
 
     </div>
 }
@@ -68,5 +70,25 @@ const arg = [
     ['red', 'black', 'red', 'black', 'black', 'red', 'black'],
     ['black', 'red', 'black', 'red', 'red', 'black', 'black'],
 ]
+const View = () => {
+    const viewStyle = {}
+    return <div style={viewStyle}>
+        <button onClick={startGame}>Start</button>
+        <Board rows={arg}></Board>
+    </div>
+}
 
-ReactDOM.render(<Board rows={arg}></Board>, document.getElementById('root')); //putting 'element' inside of 'root' element.  
+const startGame = async () => {
+    // call to API
+    const response = await axios.post('http://localhost:3000/reset')
+    // load response into local state
+    debugger
+    console.log(response.data.message)
+    stateFunctions.updateState({
+        type: "reset", 
+        payload: response.data.state
+    })
+
+}
+
+ReactDOM.render(<View></View>, document.getElementById('root')); //putting 'element' inside of 'root' element.  

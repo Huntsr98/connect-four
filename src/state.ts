@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { ServerState, Move } from '../types/index'
 
-export const state: State = {
+export let state: State = {
     gameId: 0,
     myColor: 'red',
     myTurn: true,
@@ -13,6 +13,14 @@ export const state: State = {
                 y: 0
             }
     ]
+}
+
+export const updateState = ({type, payload}) => {
+    if (type === "reset") {
+        state = payload
+    }
+    console.log(state)
+    return state
 }
 
 type Color = 'red' | 'black'
