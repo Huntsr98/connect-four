@@ -78,7 +78,7 @@ app.post('/reset', (req, res) => {
     state.gameId = Math.floor(Math.random() * 10 ** 12)
     res.send({
         message: 'okay :)',
-        gameId: state.gameId
+        state
     })
 })
 app.listen(port, () => {
