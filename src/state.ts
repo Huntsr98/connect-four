@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { ServerState, Move } from '../types/index'
 
-export const state: State = {
+export let state: State = {
     gameId: 0,
     myColor: 'red',
     myTurn: true,
@@ -13,6 +13,14 @@ export const state: State = {
                 y: 0
             }
     ]
+}
+
+export const updateState = ({type, payload}) => {
+    if (type === "reset") {
+        state = payload
+    }
+    console.log(state)
+    return state
 }
 
 type Color = 'red' | 'black'
@@ -52,9 +60,9 @@ export const checkIn = async (gameId: number, myColor: Color) => {
 }
 
 
-export const makeAMove = (gameId: number, x: number, y: number, color: Color) => {
+export const makeAMove = (x: number) => {
     if (state.myTurn === true) {
-        axios.post('http://localhost:3000/make-a-move', { x, y, color })
+        axios.post('http://localhost:3000/make-a-move', { x, color: state.myColor, gameId: state.gameId })  // we need to add in
     }
     // starts a setInterval, in which checkIn is called.
     timer = setInterval(() => {
