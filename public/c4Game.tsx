@@ -27,48 +27,50 @@ const config = {
 const Board = ({ columns }) => {
     const boardStyle = {
         width: config.boardWidth + 'px',
-        height: config.boardHeight + 'px'
+        height: config.boardHeight + 'px',
+        display: 'flex'
     }
-    const Columns = columns.map((column) => {
-        return <Column pieceArray={column}></Column>
+    const columnWidth = config.boardWidth/columns.length
+    const Columns = columns.map((column, index) => {
+        return <Column pieceArray={column} whichColumn={index} columnWidth={columnWidth}></Column>
     })
     return <div style={boardStyle} className="board">
-        {Column}
+        {Columns}
     </div>
 }
-const Column = ({ pieceArray }) => {
+const Column = ({ pieceArray, whichColumn, columnWidth }) => {
     const columnStyle = {
-        width: '100%',
-        display: 'align-items'
+        width: columnWidth + 'px',
+        display: 'align-items',
+        flexDirection: 'right'
     }
 
     // 1. What type is clickChoice?  A function
     // 2. When do you want the desired event to happen? What should trigger it?  when a user clicks a gamepiece.
     // 3. When the event is triggered, what exactly do you want to happen? makeAMove should fire with the users choice as the input
-    debugger
-    const clickChoice = (gamePieces) => {
-        const key = gamePieces.key
 
-        if (key === clickChoice) {
-            let choice = key
-            stateFunctions.makeAMove(choice)
-        }
-    }
-    const gamePieces = pieceArray.map((gamePiece, whichPiece) => {
-        return  <GamePiece color={gamePiece} whichPiece={whichPiece}></GamePiece> 
+    const gamePieces = pieceArray.map((gamePiece) => {
+        return  <GamePiece color={gamePiece} ></GamePiece> 
         // I want to see if "whichPiece" = the piece that was clicked.  If it is, the I want "makeAMove" 
         // to be called, feeding it with the piece that was clicked
 
 
     })
-
-    return <div style={columnStyle} className="column" >
+    
+    const clickChoice = () => {
+        // do I need the const key or IF statement?
+        // if (key === clickChoice) {
+            // let choice = key
+            stateFunctions.makeAMove(whichColumn)
+        // }
+    }
+    return <div style={columnStyle} className="column" onClick={clickChoice} >
         {gamePieces}
     </div>
 }
 
-const GamePiece = ({ color, whichPiece }) => {
-    const style = {
+const GamePiece = ({ color }) => {
+    const gamePieceStyle = {
         width: config.gamePieceDiameter + 'px',
         height: config.gamePieceDiameter + 'px',
         background: color,
@@ -76,7 +78,7 @@ const GamePiece = ({ color, whichPiece }) => {
         borderRadius: config.boarderRadius + 'px'
     }
 
-    return <div style={style} className="gamePiece" >
+    return <div style={gamePieceStyle} className="gamePiece" >
     </div>
   
 
