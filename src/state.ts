@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { ServerState, Move } from '../types/index'
+import { ServerState, Move, } from '../types/index'
+import { STATUS_CODES } from 'http';
+
 
 export let state: State = {
     gameId: 0,
@@ -15,7 +17,7 @@ export let state: State = {
     ]
 }
 
-export const updateState = ({type, payload}) => {
+export const updateState = ({ type, payload }) => {
     if (type === "reset") {
         state = payload
     }
@@ -40,7 +42,7 @@ let timer
 //             client1: 0,
 //             client2: 0
 //         },
-//         boardDimension: {
+//         boardDimension:  {
 //             x: 7,
 //             y: 8
 //         },
@@ -51,31 +53,53 @@ let timer
 export const checkIn = (gameId: number, myColor: Color) => {
     // uses axios to post {gameId: number, color: 'red' | black'} to the server's /check-in endpoint
     // const currentState: ServerState = await axios.post('http://localhost:3000/check-in', { gameId, myColor })
-    
-    // HW: replace axiosMock() with a real call to the server for state
-    // use /check-in
-    // deal with the promise that axios.post returns, which will trigger state.myTurn = true
-    const currentState: ServerState = axiosMock()
-    if (currentState.whoseTurn === state.myColor) {
-        state.myTurn = true
-        clearInterval(timer)
-        alert('It\'s my turn!')
 
-    }
+    // HW: replace axiosMock() with a real call to the server for state
+    // deal with the promise that axios.post returns, which will trigger state.myTurn = true
+
+
+    // askForState is a promise
+    // a promise is a mechanism for handling asynchronisity, aka something that we don't know when it's going to finish
+    const askForState = axios.get('http://localhost:3000/get-state')
+    // you use the .then in order to prevent moving on before we have the results from the Promise
+    askForState.then((response) => {
+        const currentState: ServerState = response.data.state
+        if (currentState.whoseTurn === state.myColor) {
+            state.myTurn = true
+            clearInterval(timer)
+            alert('It\'s my turn!')
+
+        }
+
+    })
+
+
+
+    // const pFactory = (time) => {
+    //     const p = new Promise((resolve, reject) => {
+    //         setTimeout(() => {
+    //             resolve('success')
+    //         }, time)
+    //     })
+    //     return p
+    // }
+
+
+
 }
 
 
 export const makeAMove = (gameId: number, x: number, y: number, color: Color) => {
     if (state.myTurn === true) {
         const responsePromise = axios.post('http://localhost:3000/make-a-move', { x, y, color })
-        
+
         // response looks like 
         //{
         //     message: 'okay :)',
         //     moves: state.moves
         // }
         debugger
-        responsePromise.then(({data}) => {
+        responsePromise.then(({ data }) => {
             // starts a setInterval, in which checkIn is called.
             debugger
             timer = setInterval(() => {

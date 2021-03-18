@@ -66,8 +66,8 @@ const switchWhoseTurn = () => {
     }
 }
 
-app.get('/get-state', (req, res) => {
-    res.send({
+app.get('/get-state', (request, response) => {
+    response.send({
         message: 'okay :)',
         state
     })

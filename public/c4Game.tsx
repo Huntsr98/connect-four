@@ -12,7 +12,7 @@ import ReactDOM from 'react-dom';
 import { ServerState } from '../types';
 import axios from 'axios'
 
-
+debugger
 //this is temporary stub
 stateFunctions.makeAMove(stateFunctions.state.gameId, stateFunctions.state.moves[0].x, stateFunctions.state.moves[0].y, stateFunctions.state.myColor)
 
