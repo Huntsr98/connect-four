@@ -28,10 +28,26 @@ const stateFactory = () => {
             y: 6
         },
         whoseTurn: 'red',
-        gameId: 0
+        gameId: 0,
+        client: 1,
     }
     return initialState
 }
+
+
+//Emily: this is my attempt at making an endpoint to determine your starting color? 
+//is gameId to determine which client you are instead of which move it is? I hope so...
+app.post('/myColor', (req, res) => {
+    let myColor = req.body
+    if (state.client === 1) {
+        myColor = 'red'
+        res.send(myColor)
+    }
+    else {
+        myColor = 'black'
+        res.send(myColor)
+    }
+})
 
 let state = stateFactory()
 

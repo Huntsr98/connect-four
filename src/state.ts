@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import { ServerState, Move, } from '../types/index'
+import { ServerState, Move, ClientNumber, } from '../types/index'
 import { STATUS_CODES } from 'http';
 
 
 export let state: State = {
     gameId: 0,
+    client: 1,
     myColor: 'black',
     myTurn: true,
     moves: [
@@ -29,6 +30,7 @@ type Color = 'red' | 'black'
 
 type State = {
     gameId: number
+    client: ClientNumber
     myColor: Color
     myTurn: boolean
     moves: Move[]
@@ -50,6 +52,14 @@ let timer
 //         gameId: 1
 //     }
 // }
+
+const myColorPromise = axios.get('http://localhost:3000/myColor')
+myColorPromise.then((response) => {
+    state.client = response.data.state.client
+    //somehow export and connect this with view in c4Game.tsx???
+})
+
+
 export const checkIn = (gameId: number, myColor: Color) => {
     // uses axios to post {gameId: number, color: 'red' | black'} to the server's /check-in endpoint
     // const currentState: ServerState = await axios.post('http://localhost:3000/check-in', { gameId, myColor })
@@ -72,20 +82,6 @@ export const checkIn = (gameId: number, myColor: Color) => {
         }
 
     })
-
-
-
-    // const pFactory = (time) => {
-    //     const p = new Promise((resolve, reject) => {
-    //         setTimeout(() => {
-    //             resolve('success')
-    //         }, time)
-    //     })
-    //     return p
-    // }
-
-
-
 }
 
 

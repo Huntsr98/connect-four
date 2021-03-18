@@ -1,5 +1,6 @@
 
 export type PieceColor = 'red' | 'black'
+export type ClientNumber = 1 | 2
 
 export type ServerState = {
     moves: Move[], 
@@ -12,7 +13,8 @@ export type ServerState = {
         y: number
     },
     whoseTurn: PieceColor,
-    gameId: number
+    gameId: number,
+    client: ClientNumber,
 }
 
 export interface Move {
