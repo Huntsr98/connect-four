@@ -15,6 +15,10 @@ export type ServerState = {
     whoseTurn: PieceColor,
     gameId: number,
     client: ClientNumber,
+    players: {
+        red: null | string,
+        black: null | string,
+    }
 }
 
 export interface Move {

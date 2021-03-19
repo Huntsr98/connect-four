@@ -2,6 +2,7 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import { Move, ServerState } from '../types'
 import * as cors from 'cors'
+import { v4 as uuidv4 } from 'uuid';
 const app = express()
 const port = 3000
 let cache = ['hello']
@@ -30,6 +31,10 @@ const stateFactory = () => {
         whoseTurn: 'red',
         gameId: 0,
         client: 1,
+        players: {
+            red: null,
+            black: null,
+        }
     }
     return initialState
 }
@@ -37,16 +42,19 @@ const stateFactory = () => {
 
 //Emily: this is my attempt at making an endpoint to determine your starting color? 
 //is gameId to determine which client you are instead of which move it is? I hope so...
-app.post('/myColor', (req, res) => {
-    let myColor = req.body
-    if (state.client === 1) {
-        myColor = 'red'
-        res.send(myColor)
+app.get('/enterGame', (req, res) => {
+    console.log(req.query)
+    let userId = req.query.userId
+    // if there is no userId
+    if (!userId) {
+        userId = uuidv4()
+        if (!state.players.red) {
+            state.players.red = userId as string
+        } else {
+            state.players.black = userId as string
+        }
     }
-    else {
-        myColor = 'black'
-        res.send(myColor)
-    }
+    res.send(state)
 })
 
 let state = stateFactory()
@@ -75,9 +83,9 @@ app.post('/make-a-move', (req, res) => {
 })
 
 const switchWhoseTurn = () => {
-    if(state.whoseTurn === 'black'){
+    if (state.whoseTurn === 'black') {
         state.whoseTurn = 'red'
-    }else{
+    } else {
         state.whoseTurn = 'black'
     }
 }

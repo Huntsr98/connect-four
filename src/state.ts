@@ -53,9 +53,11 @@ let timer
 //     }
 // }
 
-const myColorPromise = axios.get('http://localhost:3000/myColor')
+const userId = localStorage.get('userId')
+const myColorPromise = axios.get(`http://localhost:3000/enterGame?userId=${userId}`)
 myColorPromise.then((response) => {
-    state.client = response.data.state.client
+    state.client = response.data
+
     //somehow export and connect this with view in c4Game.tsx???
 })
 
