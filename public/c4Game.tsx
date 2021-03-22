@@ -12,37 +12,47 @@ import ReactDOM from 'react-dom';
 import { ServerState } from '../types';
 import axios from 'axios'
 
-
-//this is temporary stub
-stateFunctions.makeAMove(stateFunctions.state.gameId, stateFunctions.state.moves[0].x, stateFunctions.state.moves[0].y, stateFunctions.state.myColor)
-
 const config = {
-    boardWidth: 750,
-    boardHeight: 750,
-    gamePieceDiameter: 75,
-    boarderRadius: 100
+    boardWidth: '100%',
+    boarderRadius: 100,
+    baseUnit: 50
 }
 
+const fillerUp = (columns) => {
+    const newColumns = columns.map(column => {
+        const newColumn = [...column]
+        // <= is less than or equal to
+        while (newColumn.length <= 6) {
+            newColumn.push(null)
+        }
+        return newColumn
+    });
+    return newColumns
+}
 
 const Board = ({ columns }) => {
+    
     const boardStyle = {
-        width: config.boardWidth + 'px',
-        height: config.boardHeight + 'px',
-        display: 'flex'
-    }
-    const columnWidth = config.boardWidth/columns.length
-    const Columns = columns.map((column, index) => {
-        return <Column pieceArray={column} whichColumn={index} columnWidth={columnWidth}></Column>
+        width: config.boardWidth,
+        height: (config.baseUnit * 6) + 'px',
+        maxWidth: (config.baseUnit * 7) + 'px',
+        display: 'flex',
+        border: '1px black solid'
+    } 
+    const filledColumns = fillerUp(columns)
+    const Columns = filledColumns.map((column, index) => {
+        return <Column pieceArray={column} whichColumn={index} ></Column>
     })
-    return <div style={boardStyle} className="board">
+    return <div style={boardStyle}>
         {Columns}
     </div>
 }
-const Column = ({ pieceArray, whichColumn, columnWidth }) => {
+const Column = ({ pieceArray, whichColumn }) => {
     const columnStyle = {
-        width: columnWidth + 'px',
-        display: 'align-items',
-        flexDirection: 'right'
+        justifyContent: 'space-between',
+        display: 'flex',
+        flexDirection: 'column',
+        flexGrow: 1
     }
 
     // 1. What type is clickChoice?  A function
@@ -50,41 +60,40 @@ const Column = ({ pieceArray, whichColumn, columnWidth }) => {
     // 3. When the event is triggered, what exactly do you want to happen? makeAMove should fire with the users choice as the input
 
     const gamePieces = pieceArray.map((gamePiece) => {
-        return  <GamePiece color={gamePiece} ></GamePiece> 
+        return <GamePiece color={gamePiece} ></GamePiece>
         // I want to see if "whichPiece" = the piece that was clicked.  If it is, the I want "makeAMove" 
         // to be called, feeding it with the piece that was clicked
 
 
     })
-    
+
     const clickChoice = () => {
         // do I need the const key or IF statement?
         // if (key === clickChoice) {
-            // let choice = key
-            stateFunctions.makeAMove(whichColumn)
+        // let choice = key
+        stateFunctions.makeAMove(whichColumn)
         // }
     }
-    return <div style={columnStyle} className="column" onClick={clickChoice} >
+    return <div style={columnStyle} onClick={clickChoice} >
         {gamePieces}
     </div>
 }
 
 const GamePiece = ({ color }) => {
     const gamePieceStyle = {
-        width: config.gamePieceDiameter + 'px',
-        height: config.gamePieceDiameter + 'px',
+        width: config.baseUnit + 'px',
         background: color,
-        flexDirection: 'center',
-        borderRadius: config.boarderRadius + 'px'
+        borderRadius: config.boarderRadius + 'px',
+        flex: 1
     }
 
-    return <div style={gamePieceStyle} className="gamePiece" >
+    return <div style={gamePieceStyle}>
     </div>
-  
+
 
 }
 const arg = [
-    ['red', ],
+    ['red',],
     ['black'],
     ['black', 'red'],
     [],
@@ -117,7 +126,7 @@ const startGame = async () => {
     debugger
     console.log(response.data.message)
     stateFunctions.updateState({
-        type: "reset", 
+        type: "reset",
         payload: response.data.state
     })
 
