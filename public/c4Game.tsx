@@ -22,7 +22,7 @@ const fillerUp = (columns) => {
     const newColumns = columns.map(column => {
         const newColumn = [...column]
         // <= is less than or equal to
-        while (newColumn.length <= 6) {
+        while (newColumn.length < 6) {
             newColumn.push(null)
         }
         return newColumn
@@ -59,7 +59,7 @@ const Column = ({ pieceArray, whichColumn }) => {
     // 2. When do you want the desired event to happen? What should trigger it?  when a user clicks a gamepiece.
     // 3. When the event is triggered, what exactly do you want to happen? makeAMove should fire with the users choice as the input
 
-    const gamePieces = pieceArray.map((gamePiece) => {
+    const GamePieces = pieceArray.map((gamePiece) => {
         return <GamePiece color={gamePiece} ></GamePiece>
         // I want to see if "whichPiece" = the piece that was clicked.  If it is, the I want "makeAMove" 
         // to be called, feeding it with the piece that was clicked
@@ -75,7 +75,7 @@ const Column = ({ pieceArray, whichColumn }) => {
         // }
     }
     return <div style={columnStyle} onClick={clickChoice} >
-        {gamePieces}
+        {GamePieces}
     </div>
 }
 
