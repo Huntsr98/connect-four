@@ -1,8 +1,11 @@
 
 export type PieceColor = 'red' | 'black'
-
+export interface Move {
+    x: number,
+    color: PieceColor
+}
 export type ServerState = {
-    moves: Move[], 
+    columns: [Column, Column, Column, Column, Column, Column, Column],
     scores: {
         client1: number,
         client2: number
@@ -15,11 +18,7 @@ export type ServerState = {
     gameId: number
 }
 
-export interface Move {
-    color: PieceColor,
-    x: number,
-    y: number
-}
+export type Column = PieceColor[]
 
 
 // import { types } from "util";
@@ -55,7 +54,7 @@ export interface Move {
 // app.post('/reset', (req, res) => {
 //     state = initialState
 //     state.gameId = Math.random()
-    
+
 // })
 // // Resets state to its initial state.
 // // Randomly generates a new gameId on state

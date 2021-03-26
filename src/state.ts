@@ -10,7 +10,6 @@ export let state: State = {
             {
                 color: 'red',
                 x: 3,
-                y: 0
             }
     ]
 }
@@ -60,9 +59,9 @@ export const checkIn = async (gameId: number, myColor: Color) => {
 }
 
 
-export const makeAMove = (gameId: number, x: number, y: number, color: Color) => {
+export const makeAMove = (columnNumber: number) => {
     if (state.myTurn === true) {
-        axios.post('http://localhost:3000/make-a-move', { x, y, color })
+        axios.post('http://localhost:3000/make-a-move', { columnNumber, color: state.myColor, gameId: state.gameId })  // we need to add in
     }
     // starts a setInterval, in which checkIn is called.
     timer = setInterval(() => {
