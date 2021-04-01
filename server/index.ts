@@ -18,7 +18,15 @@ app.use(cors(corsOptions))
 const stateFactory = () => {
 
     const initialState: ServerState = {
-        moves: [],
+        columns: [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ],
         scores: {
             client1: 0,
             client2: 0
@@ -44,12 +52,12 @@ app.post('/make-a-move', (req, res) => {
     const move: Move = req.body
     console.log('made it')
     if (move.color === state.whoseTurn) {
-        state.moves.push(move)
+        state.columns[move.x].push(move.color)
         console.log(state)
         switchWhoseTurn()
         res.send({
             message: 'okay :)',
-            moves: state.moves
+            columns: state.columns
         })
     } else {
         res.send({
