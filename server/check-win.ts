@@ -9,6 +9,8 @@
 // • After move is made and server-side state is updated, this algorithm should be run to check for the win
 // • move color, and position (column, row) need to be passed into this algorithm
 
+import { resourceLimits } from "worker_threads";
+
 
 // Questions
 //  1. Should this be done on the server or client? (cheaper to do on client, cleaner to do on the server since that's where we're maintaining state) - opting for server
@@ -16,7 +18,7 @@
 //  3. Decided not to just list all winning combos and check against that because that seemed inefficient, but was that a mistake?
 
 
-//stubs for testing
+//mock for testing
 let board = [
     ['red',],
     ['black'],
@@ -31,65 +33,78 @@ let board = [
 
 export type FourInARow = 'verticalWin' | 'horizontalWin' | 'diagonalInclineWin' | 'diagonalDeclineWin' | null
 
-
-const movedPieceColor = 'red';
-const moveColumn = 5;
-const moveRow = 2;
-const neededToWin = [movedPieceColor, movedPieceColor, movedPieceColor, movedPieceColor];
-
-
-var fourInARow: FourInARow;
-
-
-//function to check if arrays match
-
-const arraysMatch = (arr1, arr2) => {
-
-    // Check if the arrays are the same length (needs to be cleaned up)
-    if (arr1.length !== arr2.length) {
-        return false
-    } else {
-        // Check if all items exist and are in the same order
-        for (var i = 0; i < arr1.length; i++) {
-            if (arr1[i] !== arr2[i])
-                return false;
+const checkForFour = (arr: Array<string>) => {
+    const result = arr.reduce((accumulator, color) => {
+        if (color && accumulator.color === color) {
+            accumulator.consecutive++
+            if (accumulator.consecutive > 3) {
+                accumulator.winner = color
+            }
+        } else {
+            accumulator.color = color
+            accumulator.consecutive = 1
         }
-    } else {
+        return accumulator
+    }, {
+        color: null,
+        consecutive: 0,
+        winner: null
+    })
+    return result.winner
+}
 
-    // Otherwise, return true
-    return true;
+
+
+
+
+export const getWinningColor = (board, moveRow, moveColumn) => {
+    // check horizontal: create array for the row on which piece was placed and look for 4 in a row. Make sure blanks are accounted for
+    const horizontal = [board[0][moveRow], board[1][moveRow], board[2][moveRow], board[3][moveRow], board[4][moveRow], board[5][moveRow]]
+    const vertical = board[moveColumn].slice(-4);
+
+    const bottomDiagonal = []
+    const topDiagonal = []
+
+
+    const startingColumn = moveColumn - 3
+    const bottomRow = moveRow - 3
+    const topRow = moveRow + 3
+    for (let i = 0; i < 7; i++) {
+        const currentColumn = startingColumn + i
+        const currentRow = bottomRow + i
+        if (
+            currentColumn > -1 &&
+            currentColumn < 8 &&
+            currentRow > -1 &&
+            currentRow < 7
+        ) {
+            bottomDiagonal.push(board[currentColumn][currentRow]);
+        }
     }
 
-};
 
-// check vertical: only need to check below the piece on the column.
+    for (let i = 0; i < 7; i++) {
+        const currentColumn = startingColumn + i
+        const currentRow = topRow - i
+        if (
+            currentColumn > -1 &&
+            currentColumn < 8 &&
+            currentRow > -1 &&
+            currentRow < 7
+        ) {
+            topDiagonal.push(board[currentColumn][currentRow]);
+        }
+    }
 
-var vertical = columns[moveColumn].slice(-4, 6);
-// should pull top four pieces in column
-//questions - how do you get each column to be a "column"
-if (vertical === neededToWin) {
-    fourInARow = 'verticalWin'
-};
-
-
-
-// check horizontal: create array for the row on which piece was placed and look for 4 in a row. Make sure blanks are accounted for
-var horizontal = [columns[0][moveRow], columns[1][moveRow], columns[2][moveRow], columns[3][moveRow], columns[4][moveRow], columns[5][moveRow]]
-
-// need to check if ordered array is found in another array... having trouble
-
-// check diagonal: need to do 2x to check both slants. Make sure blanks and off-the-board are accounted for
-
-var diagonalIncline = [];
-var i;
-for (i = 0; i < 7; i++) {
-    rightDiagonal.push(columns[i][moveRow - (moveColumn - i)]);
+    let winner = checkForFour(topDiagonal)
+    if (!winner) {
+        winner = checkForFour(bottomDiagonal)
+    }
+    if (!winner) {
+        winner = checkForFour(vertical)
+    }
+    if (!winner) {
+        winner = checkForFour(horizontal)
+    }
+    return winner
 }
-
-var diagonalDecline = [];
-var i;
-for (i = 0; i < 7; i++) {
-    leftDiagonal.push(columns[i][moveRow + (moveColumn - i)]);
-}
-
-// need to check if ordered array is found in another array... having trouble (same as above)

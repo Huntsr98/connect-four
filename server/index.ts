@@ -1,6 +1,7 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import { Move, ServerState } from '../types'
+import {getWinningColor} from './check-win'
 import * as cors from 'cors'
 const app = express()
 const port = 3000
@@ -54,11 +55,14 @@ app.post('/make-a-move', (req, res) => {
     if (move.color === state.whoseTurn) {
         state.columns[move.x].push(move.color)
         console.log(state)
+        const winner = getWinningColor(state.columns, state.columns[move.x].length-1, move.x)
         switchWhoseTurn()
         res.send({
             message: 'okay :)',
-            columns: state.columns
+            columns: state.columns,
+            winner
         })
+        console.log({winner})
     } else {
         res.send({
             message: 'Not your turn'
