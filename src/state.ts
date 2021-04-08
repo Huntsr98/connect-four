@@ -6,21 +6,24 @@ import { STATUS_CODES } from 'http';
 
 export let state: State = {
     gameId: 0,
+    userId: null, 
     client: 1,
     myColor: 'black',
     myTurn: true,
     moves: [
-        {
-            color: 'red',
-            x: 3,
-            y: 0
-        }
+            {
+                color: 'red',
+                x: 3,
+            }
     ]
 }
 
 export const updateState = ({ type, payload }) => {
     if (type === "reset") {
-        state = payload
+        state = payload.state
+        state.userId = payload.userId
+        //EMILY HW: determine which user's turn
+        state.myTurn = //?????
     }
     console.log(state)
     return state
@@ -30,6 +33,7 @@ type Color = 'red' | 'black'
 
 type State = {
     gameId: number
+    userId: string | null
     client: ClientNumber
     myColor: Color
     myTurn: boolean
@@ -87,9 +91,9 @@ export const checkIn = (gameId: number, myColor: Color) => {
 }
 
 
-export const makeAMove = (gameId: number, x: number, y: number, color: Color) => {
+export const makeAMove = (columnNumber: number) => {
     if (state.myTurn === true) {
-        const responsePromise = axios.post('http://localhost:3000/make-a-move', { x, y, color })
+        const responsePromise = axios.post('http://localhost:3000/make-a-move', { columnNumber, color: state.myColor, gameId: state.gameId }) 
 
         // response looks like 
         //{

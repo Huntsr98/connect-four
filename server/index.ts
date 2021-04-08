@@ -19,7 +19,15 @@ app.use(cors(corsOptions))
 const stateFactory = () => {
 
     const initialState: ServerState = {
-        moves: [],
+        columns: [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ],
         scores: {
             client1: 0,
             client2: 0
@@ -40,8 +48,6 @@ const stateFactory = () => {
 }
 
 
-//Emily: this is my attempt at making an endpoint to determine your starting color? 
-//is gameId to determine which client you are instead of which move it is? I hope so...
 app.get('/enterGame', (req, res) => {
     console.log(req.query)
     let userId = req.query.userId
@@ -54,7 +60,7 @@ app.get('/enterGame', (req, res) => {
             state.players.black = userId as string
         }
     }
-    res.send(state)
+    res.send({state, userId})
 })
 
 let state = stateFactory()
@@ -68,12 +74,12 @@ app.post('/make-a-move', (req, res) => {
     const move: Move = req.body
     console.log('made it')
     if (move.color === state.whoseTurn) {
-        state.moves.push(move)
+        state.columns[move.x].push(move.color)
         console.log(state)
         switchWhoseTurn()
         res.send({
             message: 'okay :)',
-            moves: state.moves
+            columns: state.columns
         })
     } else {
         res.send({
