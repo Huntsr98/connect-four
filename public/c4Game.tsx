@@ -9,7 +9,7 @@
 import * as React from 'react';
 import * as stateFunctions from '../src/state'
 import ReactDOM from 'react-dom';
-import { ServerState } from '../types';
+import { BrowserState, JoinResponse, ServerState } from '../types';
 import axios from 'axios'
 
 const config = {
@@ -30,23 +30,24 @@ const fillerUp = (columns) => {
     return newColumns
 }
 
-const Board = ({ columns }) => {
-    
+const Board = ({ state, setState }) => {
+
     const boardStyle = {
         width: config.boardWidth,
         height: (config.baseUnit * 6) + 'px',
         maxWidth: (config.baseUnit * 7) + 'px',
         display: 'flex',
         border: '1px black solid'
-    } 
-    const filledColumns = fillerUp(columns)
+    }
+    const filledColumns = fillerUp(state.columns)
     const Columns = filledColumns.map((column, index) => {
-        return <Column pieceArray={column} whichColumn={index} ></Column>
+        return <Column pieceArray={column} whichColumn={index}></Column>
     })
     return <div style={boardStyle}>
         {Columns}
     </div>
 }
+
 const Column = ({ pieceArray, whichColumn }) => {
     const columnStyle = {
         justifyContent: 'space-between',
@@ -112,24 +113,29 @@ const piece = column[1]
 //
 
 const View = () => {
+    const [state, setState] = React.useState<BrowserState>(stateFunctions.getState())
+    let Thing
+    if (state) {
+        Thing =  <Board state={state} setState={setState}></Board>
+    } else {
+        Thing = <div></div>
+    }
+
+    const start = async () => {
+        await stateFunctions.startGame()
+        const s = stateFunctions.getState()
+        setState(s)
+    }
+
+
     const viewStyle = {}
     return <div style={viewStyle}>
-        <button onClick={startGame}>Start</button>
-        <Board columns={arg}></Board>
+        {/* <div> {state.myColor} </div> */}
+        <button onClick={start}>Start</button>
+       { Thing }
     </div>
 }
 
-const startGame = async () => {
-    // call to API
-    const response = await axios.post('http://localhost:3000/enterGame')
-    // load response into local state
-    debugger
-    console.log(response.data)
-    stateFunctions.updateState({
-        type: "reset",
-        payload: response.data
-    })
 
-}
 ReactDOM.render(<View></View>, document.getElementById('root')); //putting 'element' inside of 'root' element.  
 
