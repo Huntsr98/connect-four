@@ -1,21 +1,42 @@
 
 export type PieceColor = 'red' | 'black'
+export type ClientNumber = 1 | 2
+
 export interface Move {
-    x: number,
-    color: PieceColor
+    columnNumber: number,
+    userId: UserId, 
+    gameId: number
 }
-export type ServerState = {
+
+export type UserId = string
+
+export type GameState = {
     columns: [Column, Column, Column, Column, Column, Column, Column],
-    scores: {
-        client1: number,
-        client2: number
-    },
     boardDimension: {
         x: number,
         y: number
     },
     whoseTurn: PieceColor,
-    gameId: number
+    gameId: number,
+    client: ClientNumber,
+}
+
+
+export type ServerState = {
+    players: {
+        red: UserId,
+        black: null | UserId,
+    }
+} & GameState
+// & concatenates
+
+export type BrowserState = {
+    userId: UserId,
+    myColor: PieceColor
+} & GameState
+
+export type JoinResponse = {
+    data: BrowserState
 }
 
 export type Column = PieceColor[]
@@ -51,7 +72,7 @@ export type Column = PieceColor[]
 
 
 
-// app.post('/reset', (req, res) => {
+// app.post('/join', (req, res) => {
 //     state = initialState
 //     state.gameId = Math.random()
 
