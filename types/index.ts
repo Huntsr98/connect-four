@@ -3,8 +3,9 @@ export type PieceColor = 'red' | 'black'
 export type ClientNumber = 1 | 2
 
 export interface Move {
-    x: number,
-    color: PieceColor
+    columnNumber: number,
+    userId: UserId, 
+    gameId: number
 }
 
 export type UserId = string

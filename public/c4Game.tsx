@@ -1,16 +1,9 @@
-// HW  create a grid in the dom in JS
-// create a function that takes an arguement
-// that argument is an array of arrays
-// each subarray has n strings or null
-// each string is either the word "Red" or "Black"
-//  each subarray will be a column, a column of divs in the dom
-// each div will have the background color of red or black or none (in the case of a null)
 
 import * as React from 'react';
-import * as stateFunctions from '../src/state'
 import ReactDOM from 'react-dom';
-import { BrowserState, JoinResponse, ServerState } from '../types';
 import axios from 'axios'
+import { BrowserState, Move, ClientNumber, JoinResponse } from '../types/index'
+
 
 const config = {
     boardWidth: '100%',
@@ -30,7 +23,7 @@ const fillerUp = (columns) => {
     return newColumns
 }
 
-const Board = ({ state, setState }) => {
+const Board = ({ state, setState, makeAMove }) => {
 
     const boardStyle = {
         width: config.boardWidth,
@@ -41,19 +34,20 @@ const Board = ({ state, setState }) => {
     }
     const filledColumns = fillerUp(state.columns)
     const Columns = filledColumns.map((column, index) => {
-        return <Column pieceArray={column} whichColumn={index}></Column>
+        return <Column pieceArray={column} whichColumn={index} setState={setState} state={state} makeAMove={makeAMove}></Column>
     })
     return <div style={boardStyle}>
         {Columns}
     </div>
 }
 
-const Column = ({ pieceArray, whichColumn }) => {
+const Column = ({ pieceArray, whichColumn, setState, state, makeAMove }) => {
     const columnStyle = {
         justifyContent: 'space-between',
         display: 'flex',
         flexDirection: 'column',
-        flexGrow: 1
+        flexGrow: 1,
+        border: 'solid 1px black'
     }
 
     // 1. What type is clickChoice?  A function
@@ -68,12 +62,8 @@ const Column = ({ pieceArray, whichColumn }) => {
 
     })
 
-    const clickChoice = () => {
-        // do I need the const key or IF statement?
-        // if (key === clickChoice) {
-        // let choice = key
-        stateFunctions.makeAMove(whichColumn)
-        // }
+    const clickChoice = async () => {
+        await makeAMove(whichColumn, state)
     }
     return <div style={columnStyle} onClick={clickChoice} >
         {GamePieces}
@@ -106,33 +96,181 @@ const arg = [
 const column = arg[2]
 const piece = column[1]
 
-// HW 2/18
-// when the user clicks on a column of the board, we want makeAMove to fire with the appropriate arguements 
-// hint:  when creating the divs, some will get "on click" events 
-// search how to add ON CLICK to a div, specifically a gamepiece?
-//
+
 
 const View = () => {
-    const [state, setState] = React.useState<BrowserState>(stateFunctions.getState())
+    const [state, setState] = React.useState<BrowserState>()
+
+    type Color = 'red' | 'black'
+
+    type State = {
+        gameId: number
+        userId: string | null
+        client: ClientNumber
+        myColor: Color
+        myTurn: boolean
+        moves: Move[]
+    }
+
+    let timer
+    // const axiosMock = (): ServerState => {
+    //     return {
+    //         moves: [],
+    //         scores: {
+    //             client1: 0,
+    //             client2: 0
+    //         },
+    //         boardDimension:  {
+    //             x: 7,
+    //             y: 8
+    //         },
+    //         whoseTurn: 'red',
+    //         gameId: 1
+    //     }
+    // }
+
+
+    // How to manage two promises and get them at once
+    // const fun = async () => {
+    //     const requestOneP =  axios.get('xyz')
+    //     const requestTwoP =  axios.get('abc')
+    //     const results = await Promise.all([requestOneP, requestTwoP])
+    //     return results
+    // }
+
+    const checkIn = async (gameId: number, myColor: Color) => {
+        // uses axios to post {gameId: number, color: 'red' | black'} to the server's /check-in endpoint
+        const askForState = axios.post('http://localhost:3000/get-state', { gameId, myColor })
+        console.log(1)
+        const response = await askForState
+        // askForState is a promise
+        // a promise is a mechanism for handling asynchronisity, aka something that we don't know when it's going to finish
+        // you use the .then in order to prevent moving on before we have the results from the Promise
+
+        const currentState: BrowserState = response.data.state
+
+        if (isItMyTurn(currentState) === true) {
+            clearInterval(timer)
+            alert('It\'s my turn!')
+            setState(currentState)
+        }
+
+    }
+
+
+
+    // when you make a move it's not automatically updating for the other person
+
+    const makeAMove = async (columnNumber: number, state: BrowserState) => {
+        const myTurn = isItMyTurn(state)
+        let newState
+        if (myTurn === true) {
+            const responsePromise = axios.post('http://localhost:3000/make-a-move', { columnNumber, userId: state.userId, gameId: state.gameId })
+
+            // response looks like 
+            //{
+            //     message: 'okay :)',
+            //     moves: state.moves
+            // }
+
+            const { data } = await responsePromise
+            newState = data
+            // starts a setInterval, in which checkIn is called.
+            clearInterval(timer)
+            timer = setInterval(() => {
+
+                //START HERE: something breaking here. newState is undefined.
+                checkIn(newState.gameId, newState.myColor)
+            }, 3000)
+            setState(data.state)
+        }
+
+        //do you also need other browser to return newState separately? 
+
+    }
+
+
+
+    // const reset = (state) => {
+    //     // resets state to initial state
+    //     state = {
+    //         gameId: 0,
+    //         myColor: 'red',
+    //         myTurn: false,
+    //         moves: []
+    //     }
+    //     return state
+    // }
+
+    // {
+    //     userId: UserId,
+    //     myColor: PieceColor
+    //     columns: [Column, Column, Column, Column, Column, Column, Column],
+    //     boardDimension: {
+    //         x: number,
+    //         y: number
+    //     },
+    //     whoseTurn: PieceColor,
+    //     gameId: number,
+    //     client: ClientNumber,
+    // }
+
+
+    const isItMyTurn = (state: BrowserState): boolean => {
+
+        return (state.whoseTurn === state.myColor)
+    }
+
+    const startGame = async () => {
+        const userId = localStorage.getItem('userId')
+        // call to API
+        // our response will look like: { data: BrowserState }
+        let url: string
+        if (!userId) {
+            url = `http://localhost:3000/join`
+        }
+        else {
+            url = `http://localhost:3000/join?userId=${userId}`
+        }
+        const response: JoinResponse = await axios.get(url)
+        // saves userId on local storage, which we got from response.data
+        localStorage.setItem('userId', response.data.userId)
+        // load response into local state
+
+        console.log(response.data)
+        const newState = response.data
+        if (!isItMyTurn(newState)) {
+            timer = setInterval(() => {
+                checkIn(newState.gameId, newState.myColor)
+            }, 3000)
+        }
+        return newState
+    }
+
     let Thing
+
     if (state) {
-        Thing =  <Board state={state} setState={setState}></Board>
+        Thing = <div>
+            <div> color: {state.myColor} </div>
+            <div> whose turn: {state.whoseTurn} </div>
+            <Board state={state} setState={setState} makeAMove={makeAMove}></Board>
+        </div>
     } else {
         Thing = <div></div>
     }
 
     const start = async () => {
-        await stateFunctions.startGame()
-        const s = stateFunctions.getState()
-        setState(s)
+        const newState = await startGame()
+
+
+        setState(newState)
     }
 
 
     const viewStyle = {}
     return <div style={viewStyle}>
-        {/* <div> {state.myColor} </div> */}
         <button onClick={start}>Start</button>
-       { Thing }
+        {Thing}
     </div>
 }
 
