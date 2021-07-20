@@ -143,8 +143,18 @@ app.post('/make-a-move', (req, res) => {
             state: browserState
         })
     } else {
+
+        const { players, ...remainingState } = state
+        const browserState: BrowserState = { 
+            userId: userId, 
+            myColor: myColor, 
+            ...remainingState 
+        }
+
         res.send({
-            message: 'Not your turn'
+            message: 'Not your turn',
+            // you need to send state too?
+            state: browserState
         })
 
     }

@@ -112,7 +112,7 @@ const View = () => {
         moves: Move[]
     }
 
-    let timer
+    let timerId
     // const axiosMock = (): ServerState => {
     //     return {
     //         moves: [],
@@ -140,9 +140,10 @@ const View = () => {
 
     const checkIn = async (gameId: number, myColor: Color) => {
         // uses axios to post {gameId: number, color: 'red' | black'} to the server's /check-in endpoint
-        const askForState = axios.post('http://localhost:3000/get-state', { gameId, myColor })
+        const askForState = axios.post('http://localhost:3000/get-state', { userId: state.userId, gameId, myColor })
         console.log(1)
-        const response = await askForState
+        const response = await askForState 
+
         // askForState is a promise
         // a promise is a mechanism for handling asynchronisity, aka something that we don't know when it's going to finish
         // you use the .then in order to prevent moving on before we have the results from the Promise
@@ -150,7 +151,7 @@ const View = () => {
         const currentState: BrowserState = response.data.state
 
         if (isItMyTurn(currentState) === true) {
-            clearInterval(timer)
+            clearInterval(timerId)
             alert('It\'s my turn!')
             setState(currentState)
         }
@@ -163,26 +164,33 @@ const View = () => {
 
     const makeAMove = async (columnNumber: number, state: BrowserState) => {
         const myTurn = isItMyTurn(state)
-        let newState
+        let newState: BrowserState
+
+        //not actually our turn?? but it's letting us in anyway
+        // is something changing local state?
+        debugger
         if (myTurn === true) {
-            const responsePromise = axios.post('http://localhost:3000/make-a-move', { columnNumber, userId: state.userId, gameId: state.gameId })
+            const responsePromise = axios.post<{state: BrowserState}>('http://localhost:3000/make-a-move', { columnNumber, userId: state.userId, gameId: state.gameId })
 
             // response looks like 
             //{
             //     message: 'okay :)',
             //     moves: state.moves
             // }
-
+                
             const { data } = await responsePromise
-            newState = data
+            newState = data.state
             // starts a setInterval, in which checkIn is called.
-            clearInterval(timer)
-            timer = setInterval(() => {
+          
+            clearInterval(timerId)
+            timerId = setInterval(() => {
 
                 //START HERE: something breaking here. newState is undefined.
+                // impossible state? 
                 checkIn(newState.gameId, newState.myColor)
             }, 3000)
             setState(data.state)
+
         }
 
         //do you also need other browser to return newState separately? 
@@ -240,7 +248,8 @@ const View = () => {
         console.log(response.data)
         const newState = response.data
         if (!isItMyTurn(newState)) {
-            timer = setInterval(() => {
+            clearInterval(timerId)
+            timerId = setInterval(() => {
                 checkIn(newState.gameId, newState.myColor)
             }, 3000)
         }
