@@ -157,6 +157,8 @@ const View = () => {
         if (isItMyTurn(currentState) === true) {
             clearInterval(timerId)
             // alert('It\'s my turn!')
+            // another place to tell loser they lost
+            // take out the board and message appears
             setState(currentState)
         }
 
@@ -181,6 +183,8 @@ const View = () => {
             //     message: 'okay :)',
             //     moves: state.moves
             // }
+
+            // add a winner parameter in the response
                 
             const { data } = await responsePromise
             newState = data.state
@@ -237,14 +241,9 @@ const View = () => {
         const userId = localStorage.getItem('userId')
         // call to API
         // our response will look like: { data: BrowserState }
-        let url: string
-        if (!userId) {
-            url = `http://localhost:3000/join`
-        }
-        else {
-            url = `http://localhost:3000/join?userId=${userId}`
-        }
-        const response: JoinResponse = await axios.get(url)
+     
+        const response: JoinResponse = await axios.post(`http://localhost:3000/join`, {userId, test: true})
+        
         // saves userId on local storage, which we got from response.data
         localStorage.setItem('userId', response.data.userId)
         // load response into local state

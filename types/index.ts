@@ -8,10 +8,12 @@ export interface Move {
     gameId: number
 }
 
-export type UserId = string
+export type UserId = `userId`
+
+export type Board = [Column, Column, Column, Column, Column, Column, Column]
 
 export type GameState = {
-    columns: [Column, Column, Column, Column, Column, Column, Column],
+    columns: Board,
     boardDimension: {
         x: number,
         y: number
@@ -19,6 +21,7 @@ export type GameState = {
     whoseTurn: PieceColor,
     gameId: number,
     client: ClientNumber,
+    winner: null | PieceColor
 }
 
 
