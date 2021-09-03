@@ -26,7 +26,7 @@ const fillerUp = (columns) => {
 const Board = ({ state, setState, makeAMove }) => {
 
     const boardStyle = {
-        width: config.boardWidth,
+        // width: config.boardWidth,
         height: (config.baseUnit * 6) + 'px',
         maxWidth: (config.baseUnit * 7) + 'px',
         display: 'flex',
@@ -112,7 +112,7 @@ const View = () => {
         moves: Move[]
     }
 
-    let timer
+    let timerId
     // const axiosMock = (): ServerState => {
     //     return {
     //         moves: [],
@@ -138,11 +138,16 @@ const View = () => {
     //     return results
     // }
 
-    const checkIn = async (gameId: number, myColor: Color) => {
+    const checkIn = async (state: BrowserState) => {
         // uses axios to post {gameId: number, color: 'red' | black'} to the server's /check-in endpoint
-        const askForState = axios.post('http://localhost:3000/get-state', { gameId, myColor })
+        const body = { 
+            userId: state.userId, 
+            gameId: state.gameId, 
+            myColor: state.myColor }
+        const askForState = axios.post('http://localhost:3000/get-state', body)
         console.log(1)
-        const response = await askForState
+        const response = await askForState 
+
         // askForState is a promise
         // a promise is a mechanism for handling asynchronisity, aka something that we don't know when it's going to finish
         // you use the .then in order to prevent moving on before we have the results from the Promise
@@ -150,8 +155,10 @@ const View = () => {
         const currentState: BrowserState = response.data.state
 
         if (isItMyTurn(currentState) === true) {
-            clearInterval(timer)
-            alert('It\'s my turn!')
+            clearInterval(timerId)
+            // alert('It\'s my turn!')
+            // another place to tell loser they lost
+            // take out the board and message appears
             setState(currentState)
         }
 
@@ -163,9 +170,13 @@ const View = () => {
 
     const makeAMove = async (columnNumber: number, state: BrowserState) => {
         const myTurn = isItMyTurn(state)
-        let newState
+        let newState: BrowserState
+
+        //not actually our turn?? but it's letting us in anyway
+        // is something changing local state?
+        debugger
         if (myTurn === true) {
-            const responsePromise = axios.post('http://localhost:3000/make-a-move', { columnNumber, userId: state.userId, gameId: state.gameId })
+            const responsePromise = axios.post<{state: BrowserState}>('http://localhost:3000/make-a-move', { columnNumber, userId: state.userId, gameId: state.gameId })
 
             // response looks like 
             //{
@@ -173,16 +184,21 @@ const View = () => {
             //     moves: state.moves
             // }
 
+            // add a winner parameter in the response
+                
             const { data } = await responsePromise
-            newState = data
+            newState = data.state
             // starts a setInterval, in which checkIn is called.
-            clearInterval(timer)
-            timer = setInterval(() => {
+
+            setState(data.state)
+            clearInterval(timerId)
+            timerId = setInterval(() => {
 
                 //START HERE: something breaking here. newState is undefined.
-                checkIn(newState.gameId, newState.myColor)
+                // impossible state? 
+                checkIn(newState)
             }, 3000)
-            setState(data.state)
+
         }
 
         //do you also need other browser to return newState separately? 
@@ -225,26 +241,22 @@ const View = () => {
         const userId = localStorage.getItem('userId')
         // call to API
         // our response will look like: { data: BrowserState }
-        let url: string
-        if (!userId) {
-            url = `http://localhost:3000/join`
-        }
-        else {
-            url = `http://localhost:3000/join?userId=${userId}`
-        }
-        const response: JoinResponse = await axios.get(url)
+     
+        const response: JoinResponse = await axios.post(`http://localhost:3000/join`, {userId, test: true})
+        
         // saves userId on local storage, which we got from response.data
         localStorage.setItem('userId', response.data.userId)
         // load response into local state
 
         console.log(response.data)
         const newState = response.data
+        setState(newState)
         if (!isItMyTurn(newState)) {
-            timer = setInterval(() => {
-                checkIn(newState.gameId, newState.myColor)
+            clearInterval(timerId)
+            timerId = setInterval(() => {
+                checkIn(newState)
             }, 3000)
         }
-        return newState
     }
 
     let Thing
@@ -259,17 +271,10 @@ const View = () => {
         Thing = <div></div>
     }
 
-    const start = async () => {
-        const newState = await startGame()
-
-
-        setState(newState)
-    }
-
 
     const viewStyle = {}
     return <div style={viewStyle}>
-        <button onClick={start}>Start</button>
+        <button onClick={startGame}>Start</button>
         {Thing}
     </div>
 }
